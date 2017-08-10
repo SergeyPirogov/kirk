@@ -11,6 +11,9 @@ import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.ie.InternetExplorerDriver
+import org.openqa.selenium.remote.DesiredCapabilities
+import org.openqa.selenium.remote.RemoteWebDriver
+import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 
 
@@ -24,14 +27,15 @@ class WebDriverFactory {
     private val CHROME = "chrome"
     private val FIREFOX = "firefox"
     private val INTERNET_EXPLORER = "ie"
+    private val REMOTE = "remote"
 
     private fun createDriver(): WebDriver {
         val browser = configuration.browserName()
-        when (browser) {
+        when (browser.toLowerCase()) {
             CHROME -> return createChromeDriver()
             FIREFOX -> return createFireFoxDriver()
             INTERNET_EXPLORER -> return createInternetExplorerDriver()
-
+            REMOTE -> return createRemoteWebDriver()
             else -> throw IllegalArgumentException("$browser browserName doesn't support!")
         }
     }
@@ -49,6 +53,23 @@ class WebDriverFactory {
     private fun createInternetExplorerDriver(): WebDriver {
         InternetExplorerDriverManager.getInstance().setup()
         return InternetExplorerDriver()
+    }
+
+    private fun createRemoteWebDriver(): WebDriver {
+        var capabilities: DesiredCapabilities? = null
+        val driver: RemoteWebDriver
+        val browser = configuration.remoteBrowserName().toLowerCase()
+        when (browser) {
+            CHROME -> capabilities = DesiredCapabilities.chrome()
+            FIREFOX -> capabilities = DesiredCapabilities.firefox()
+            INTERNET_EXPLORER -> capabilities = DesiredCapabilities.internetExplorer()
+        }
+        try {
+            driver = RemoteWebDriver(URL(configuration.remoteURL()), capabilities)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("\n Cannot find $browser as a remote browser!\n $e")
+        }
+        return driver
     }
 
     fun setWebDriver(webDriver: WebDriver): WebDriver {
