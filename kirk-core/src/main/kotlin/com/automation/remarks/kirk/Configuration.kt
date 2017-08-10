@@ -60,6 +60,17 @@ interface Configuration : Config {
     fun reportDir(): String
 
     /**
+     * Reomote webdriver
+     * */
+    @Key("kirk.remote.browser")
+    @DefaultValue("chrome")
+    fun remoteBrowserName(): String
+
+    @Key("kirk.remote.url")
+    @DefaultValue("http://localhost:4444/wd/hub")
+    fun remoteURL(): String
+
+    /**
      * Highlight Element style
      * */
     @Key("kirk.highlight.border")

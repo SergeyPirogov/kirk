@@ -642,7 +642,7 @@ Just create file **kirk.properties** in **src/main/resources** or **src/test/res
 It's possible to set such variables:
 
 ----
-kirk.browser=chrome                // firefox, ie
+kirk.browser=chrome                // firefox, ie, remote
 kirk.timeout=4000
 kirk.poolingInterval=0.1
 kirk.startMaximized=true
@@ -743,6 +743,16 @@ It's possible to add extensions
 
 ----
 kirk.chrome.extensions = /path/extentions
+----
+
+=== Remote Webdriver support
+
+Just setup *kirk.browser=remote* in property file.
+
+----
+kirk.browser=remote
+kirk.remote.browser=chrome                      // firefox, ie
+kirk.remote.url=http://localhost:4444/wd/hub    // localhost is default
 ----
 
 === Highlight Element style
