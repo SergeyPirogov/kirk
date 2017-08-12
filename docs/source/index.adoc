@@ -543,6 +543,27 @@ element.click() // <2>
 element("#selector").pressEnter()
 ----
 
+==== Download file
+
+KElement has method to download file. Example:
+
+.download file
+[source, java]
+----
+drive {
+   element("element").download()
+}
+----
+
+
+It’s possible to set custom output folder:
+
+----
+kirk.output=c:\\output\     //default  .\build\download\
+----
+
+*Note:* output path should be absolute
+
 ==== Upload file
 
 KElement has useful methods that help to write tests. Example file upload
@@ -769,7 +790,7 @@ The border-style property sets the style of an element's four borders. This prop
 
 
 |===
-|Header 1 |Header 2
+|Value |Description
 
 |dotted
 |Specifies a dotted border

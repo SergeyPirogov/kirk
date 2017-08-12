@@ -37,6 +37,10 @@ interface Configuration : Config {
     @Key("kirk.baseUrl")
     fun baseUrl(): String?
 
+    @Key("kirk.output")
+    @DefaultValue("")
+    fun outputPath(): String
+
     /**
      * For use <headless> chrome options, set property "kirk.startMaximized=false"
      * */

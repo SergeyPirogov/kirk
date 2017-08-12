@@ -2,6 +2,7 @@ package com.automation.remarks.kirk
 
 import com.automation.remarks.kirk.conditions.ElementCondition
 import com.automation.remarks.kirk.conditions.visible
+import com.automation.remarks.kirk.core.Download
 import com.automation.remarks.kirk.ext.classes
 import com.automation.remarks.kirk.locators.ElementLocator
 import com.automation.remarks.kirk.locators.InnerListWebElementLocator
@@ -129,5 +130,9 @@ class KElement(locator: ElementLocator<WebElement>,
 
     fun all(by: By): KElementCollection {
         return KElementCollection(InnerListWebElementLocator(by, this), driver)
+    }
+
+    fun download() {
+        Download.downloadFile(this)
     }
 }
