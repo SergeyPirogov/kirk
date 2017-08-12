@@ -3,11 +3,9 @@ package com.automation.remarks.kirk.test
 import com.automation.remarks.kirk.Browser
 import com.automation.remarks.kirk.KElement
 import com.automation.remarks.kirk.Kirk.Companion.drive
-import com.automation.remarks.kirk.conditions.cssClass
-import com.automation.remarks.kirk.conditions.exactText
-import com.automation.remarks.kirk.conditions.size
-import com.automation.remarks.kirk.conditions.text
+import com.automation.remarks.kirk.conditions.*
 import com.automation.remarks.kirk.ext.*
+import me.tatarka.assertk.assertions.isEqualTo
 import org.testng.annotations.Test
 
 /**
@@ -70,6 +68,16 @@ class KElementTest : BaseTest() {
                 scrollTo(element("#invisible_link"))
                 hover(element("#invisible_link"))
             }
+        }
+    }
+    @Test fun testCanRecognizeLocator() {
+        drive {
+            to(url)
+            element("#header").shouldHave(text("Kirk"))
+            element("//*[@id='header']").shouldHave(text("Kirk"))
+            me.tatarka.assertk.assert(element(".//*[@class='inner_link']/parent::div")).equals(element("#parent_div"))
+            me.tatarka.assertk.assert(element(".list > li:nth-child(1)").text).isEqualTo("Один")
+            me.tatarka.assertk.assert(element(".//*[@class='list']/li[1]").text).isEqualTo("Один")
         }
     }
 }
