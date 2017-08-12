@@ -8,6 +8,7 @@ import com.automation.remarks.kirk.KElement
 import com.automation.remarks.kirk.Kirk
 import com.automation.remarks.kirk.core.*
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.openqa.selenium.*
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.interactions.Actions
@@ -97,7 +98,7 @@ fun KElement.download(){
     } catch (e: IllegalStateException) {
         throw NotImplementedError("Download in beta mode.\n Possible to download file only from href param.")
     }
-    val filename = Paths.get(path).fileName.toString()
+    val filename = FilenameUtils.getName(path).toString()
     if (configuration.outputPath().isBlank())
         destination = Paths.get(System.getProperty("user.dir") +
                 File.separator + "build" + File.separator + "download", filename)
