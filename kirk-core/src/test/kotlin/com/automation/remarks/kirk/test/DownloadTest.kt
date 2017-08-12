@@ -4,6 +4,7 @@ import com.automation.remarks.kirk.Configuration
 import com.automation.remarks.kirk.Kirk
 import com.automation.remarks.kirk.core.configuration
 import com.automation.remarks.kirk.core.loadConfig
+import com.automation.remarks.kirk.ext.download
 import me.tatarka.assertk.assertions.hasClass
 import me.tatarka.assertk.assertions.hasMessageStartingWith
 import org.aeonbits.owner.Config
