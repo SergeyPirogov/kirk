@@ -105,10 +105,10 @@ fun KElement.download(){
         destination = Paths.get(configuration.outputPath(), filename)
     try {
 
-        URL(path).openStream().use({ target ->
+        URL(path).openStream().use { target ->
             Files.createDirectories(destination.parent)
             Files.copy(target, destination, StandardCopyOption.REPLACE_EXISTING)
-        })
+        }
     } catch (e: FileNotFoundException) {
         throw FileNotFoundException("Destination file not found!\n" + "href=$path\n" + this.toString())
     }
