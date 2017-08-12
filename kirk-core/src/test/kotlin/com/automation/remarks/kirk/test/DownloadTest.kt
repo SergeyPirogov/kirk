@@ -8,6 +8,7 @@ import com.automation.remarks.kirk.ext.download
 import me.tatarka.assertk.assertions.hasClass
 import me.tatarka.assertk.assertions.hasMessageStartingWith
 import org.aeonbits.owner.Config
+import org.apache.commons.lang3.SystemUtils
 import org.testng.annotations.Test
 import java.io.File
 import java.io.FileNotFoundException
@@ -28,7 +29,10 @@ class DownloadTest : BaseTest() {
     }
 
     @Test fun testCanDownloadCorrectFileToFolder() {
-        configuration = loadConfig(CustomOutputPath::class)
+        if (SystemUtils.IS_OS_WINDOWS)
+            configuration = loadConfig(CustomWinOutputPath::class)
+        else
+            configuration = loadConfig(CustomOutputPath::class)
         Kirk.drive {
             to(url)
             s("#download").download()
@@ -67,5 +71,11 @@ class DownloadTest : BaseTest() {
 interface CustomOutputPath : Configuration {
     @Config.Key("kirk.output")
     @Config.DefaultValue("./build/download_new")
+    override fun outputPath(): String
+}
+
+interface CustomWinOutputPath : Configuration {
+    @Config.Key("kirk.output")
+    @Config.DefaultValue("c:\\download")
     override fun outputPath(): String
 }
