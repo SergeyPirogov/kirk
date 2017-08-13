@@ -66,7 +66,7 @@ class SelectListTest : BaseTest() {
             val select = select(".genres")
             select.selectOption(3)
             select.deselect(3)
-            select.shouldHave(selected("Alt folk"))
+            me.tatarka.assertk.assert(select.allSelectedOptions).equals(size(0))
         }
     }
     @Test fun testCanDeselectOptionByIndex() {
