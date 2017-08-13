@@ -46,6 +46,7 @@ class ExtensionsTest : BaseTest() {
 }
 
 interface FirefoxJS : Configuration {
+    @Config.Key("kirk.browser")
     @Config.DefaultValue("firefox")
     override fun browserName(): String
 }
