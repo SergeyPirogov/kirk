@@ -7,9 +7,7 @@ import org.openqa.selenium.By
 /**
  * Created by sergey on 09.07.17.
  */
-private val STARTING_BRACES = "(\\s*\\(\\s*)*"
-private val XPATH_AXES = "ancestor|ancestor-or-self|attribute|child|descendant|descendant-or-self|following|following-sibling|parent|preceding|preceding-sibling|self"
-private val XPATH_EXPRESSION_PATTERN = Regex("$STARTING_BRACES(/|($XPATH_AXES)::).*")
+val XPATH_EXPRESSION_PATTERN = Regex(".*\\/\\/.*\$")
 
 interface SearchContext {
 
@@ -22,7 +20,12 @@ interface SearchContext {
 
     fun element(by: By): KElement
 
-    fun all(cssLocator: String) = all(By.cssSelector(cssLocator))
+    fun all(locator: String): KElementCollection {
+        if (XPATH_EXPRESSION_PATTERN.matches(locator))
+            return all(By.xpath(locator))
+        else
+            return all(By.cssSelector(locator))
+    }
 
     fun all(by: By): KElementCollection
 }
