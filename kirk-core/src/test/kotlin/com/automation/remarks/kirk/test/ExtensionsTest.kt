@@ -1,14 +1,10 @@
 package com.automation.remarks.kirk.test
 
-import com.automation.remarks.kirk.Configuration
 import com.automation.remarks.kirk.Kirk
 import com.automation.remarks.kirk.core.WebDriverFactory
-import com.automation.remarks.kirk.core.configuration
-import com.automation.remarks.kirk.core.loadConfig
 import com.automation.remarks.kirk.ext.isAlive
 import me.tatarka.assertk.assertions.contains
 import me.tatarka.assertk.assertions.isEqualTo
-import org.aeonbits.owner.Config
 import org.openqa.selenium.JavascriptExecutor
 import org.testng.annotations.Test
 
@@ -35,18 +31,11 @@ class ExtensionsTest : BaseTest() {
     }
 
     @Test fun testCanExecuteAsyncJS() {
-        configuration = loadConfig(FirefoxJS::class)
         Kirk.drive {
             to(url)
             val version = (driver as JavascriptExecutor)
                     .executeScript("return navigator.userAgent.toLowerCase()", true) as String
-            me.tatarka.assertk.assert(version).contains("firefox")
+            me.tatarka.assertk.assert(version).contains("chrome")
         }
     }
-}
-
-interface FirefoxJS : Configuration {
-    @Config.Key("kirk.browser")
-    @Config.DefaultValue("firefox")
-    override fun browserName(): String
 }
