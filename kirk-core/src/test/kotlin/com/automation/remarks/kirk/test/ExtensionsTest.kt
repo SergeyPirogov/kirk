@@ -29,13 +29,4 @@ class ExtensionsTest : BaseTest() {
             me.tatarka.assertk.assert(version).contains("chrome")
         }
     }
-
-    @Test fun testCanExecuteAsyncJS() {
-        Kirk.drive {
-            to(url)
-            val version = (driver as JavascriptExecutor)
-                    .executeScript("return navigator.userAgent.toLowerCase()", true) as String
-            me.tatarka.assertk.assert(version).contains("chrome")
-        }
-    }
 }
