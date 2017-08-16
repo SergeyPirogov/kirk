@@ -78,7 +78,6 @@ class KElementTest : BaseTest() {
             me.tatarka.assertk.assert(element("//*[@class='inner_link']/parent::div")).equals(element("#parent_div"))
             me.tatarka.assertk.assert(element(".list > li:nth-child(1)").text).isEqualTo("Один")
             me.tatarka.assertk.assert(element(".//*[@class='list']/li[1]").text).isEqualTo("Один")
-
             element("ul.list").all("li").shouldHave(size(3))
             element(".//*[@class='list']").all(".//li").shouldHave(size(3))
             all(".//*[@class='list']/li").shouldHave(size(3))

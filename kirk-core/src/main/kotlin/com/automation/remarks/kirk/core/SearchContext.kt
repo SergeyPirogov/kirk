@@ -7,12 +7,11 @@ import org.openqa.selenium.By
 /**
  * Created by sergey on 09.07.17.
  */
-val XPATH_EXPRESSION_PATTERN = Regex(".*\\/\\/.*\$")
 
 interface SearchContext {
 
     fun element(locator: String): KElement {
-        if (XPATH_EXPRESSION_PATTERN.matches(locator))
+        if (isXpath(locator))
             return element(By.xpath(locator))
         else
             return element(By.cssSelector(locator))
@@ -21,7 +20,7 @@ interface SearchContext {
     fun element(by: By): KElement
 
     fun all(locator: String): KElementCollection {
-        if (XPATH_EXPRESSION_PATTERN.matches(locator))
+        if (isXpath(locator))
             return all(By.xpath(locator))
         else
             return all(By.cssSelector(locator))
