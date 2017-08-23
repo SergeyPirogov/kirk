@@ -8,6 +8,7 @@ import com.automation.remarks.kirk.KElement
 import com.automation.remarks.kirk.Kirk
 import com.automation.remarks.kirk.core.*
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.openqa.selenium.*
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.interactions.Actions
@@ -15,6 +16,12 @@ import org.openqa.selenium.logging.LogEntries
 import org.openqa.selenium.logging.LogType
 import org.openqa.selenium.remote.UnreachableBrowserException
 import java.io.File
+import java.io.FileNotFoundException
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import kotlin.reflect.KClass
 
 /**
@@ -81,4 +88,30 @@ fun WebDriver.logs(logType: String): LogEntries {
     } else {
         throw UnsupportedOperationException()
     }
+}
+
+fun KElement.download(){
+    val path: String
+    val destination: Path
+    try {
+        path = this.attr("href")
+    } catch (e: IllegalStateException) {
+        throw NotImplementedError("Download in beta mode.\n Possible to download file only from href param.")
+    }
+    val filename = FilenameUtils.getName(path).toString()
+    if (configuration.outputPath().isBlank())
+        destination = Paths.get(System.getProperty("user.dir") +
+                File.separator + "build" + File.separator + "download", filename)
+    else
+        destination = Paths.get(configuration.outputPath(), filename)
+    try {
+
+        URL(path).openStream().use { target ->
+            Files.createDirectories(destination.parent)
+            Files.copy(target, destination, StandardCopyOption.REPLACE_EXISTING)
+        }
+    } catch (e: FileNotFoundException) {
+        throw FileNotFoundException("Destination file not found!\n" + "href=$path\n" + this.toString())
+    }
+    println("Download file: $destination")
 }
