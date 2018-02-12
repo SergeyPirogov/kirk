@@ -14,7 +14,7 @@ import org.openqa.selenium.logging.LogType
 import java.io.File
 
 class Browser(val driver: WebDriver = getDriver(),
-              val listener: KirkEventListener = AbstractKirkEventListener()) : SearchContext, Navigable {
+              val listener: KirkEventListener = getListener()) : SearchContext, Navigable {
 
     init {
         listener.onStart()
@@ -28,15 +28,9 @@ class Browser(val driver: WebDriver = getDriver(),
 
     var poolingInterval: Double by poolingInterval()
 
-    var startMaximized: Boolean? by startMaximized()
-
     var screenSize: List<Int> by screenSize()
 
     val actions = Actions(driver)
-
-    fun with(block: Browser.() -> Unit): Browser {
-        return this.apply(block)
-    }
 
     val currentUrl: String get() = driver.currentUrl
 
@@ -46,8 +40,6 @@ class Browser(val driver: WebDriver = getDriver(),
         listener.beforeNavigation(url, driver)
         if (screenSize.isNotEmpty()) {
             driver.manage().window().size = Dimension(screenSize[0], screenSize[1])
-        } else if (startMaximized!!) {
-            driver.manage().window().maximize()
         }
 
         if (isAbsoluteUrl(url)) {
@@ -81,13 +73,13 @@ class Browser(val driver: WebDriver = getDriver(),
         return page
     }
 
-    fun <T : Page> at(pageClass: (Browser) -> T): T {
+    fun <T : Page> at(pageClass: PageClass<T>): T {
         val page = pageClass(this)
         assert(page.isAt(this))
         return page
     }
 
-    override fun <T : Page> at(pageClass: (Browser) -> T, closure: T.() -> Unit): T {
+    override fun <T : Page> at(pageClass: PageClass<T>, closure: T.() -> Unit): T {
         val page = pageClass(this)
         page.closure()
         return page
@@ -103,6 +95,7 @@ class Browser(val driver: WebDriver = getDriver(),
     }
 
     override fun all(by: By): KElementCollection {
+        listener.beforeElementLocation(by, driver)
         return KElementCollection(by, driver).apply {
             waitTimeout = timeout
             waitPoolingInterval = poolingInterval
@@ -144,6 +137,7 @@ class Browser(val driver: WebDriver = getDriver(),
     }
 
     override fun quit() {
+        listener.beforeQuit()
         driver.quit()
     }
 
@@ -155,4 +149,13 @@ class Browser(val driver: WebDriver = getDriver(),
 
     val isAlive: Boolean
         get() = driver.isAlive()
+
+    override fun toFrame(frame: KElement): Browser {
+        driver.switchTo().frame(frame.webElement)
+        return this
+    }
+
+    override fun toFrame(cssLocator: String): Browser {
+        return toFrame(element(cssLocator))
+    }
 }

@@ -37,6 +37,11 @@ class KElementCollection(locator: ElementLocator<List<WebElement>>,
         super.shouldNot(condition)
     }
 
+    fun waitUntil(condition: CollectionCondition, timeout: Int = this.waitTimeout): KElementCollection {
+        this.should(condition, timeout)
+        return this
+    }
+
     override fun isEmpty(): Boolean {
         return webElements.isEmpty()
     }

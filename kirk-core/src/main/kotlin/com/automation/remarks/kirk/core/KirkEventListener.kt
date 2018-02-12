@@ -1,4 +1,4 @@
-package com.automation.remarks.kirk
+package com.automation.remarks.kirk.core
 
 import org.openqa.selenium.By
 import org.openqa.selenium.WebDriver
@@ -8,6 +8,7 @@ import org.openqa.selenium.WebDriver
  */
 interface KirkEventListener {
     fun onStart()
+    fun beforeQuit()
     fun beforeNavigation(url: String, driver: WebDriver)
     fun afterNavigation(url: String, driver: WebDriver)
     fun beforeElementLocation(by: By, driver: WebDriver)

@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.1.4-2'
+    ext.kotlin_version = '1.1.50'
 
     repositories {
         mavenCentral()
@@ -10,9 +10,8 @@ buildscript {
 }
 
 dependencies {
-    compile "org.seleniumhq.selenium:selenium-java:3.4.0"
-    //compile("org.seleniumhq.selenium:selenium-api:3.4.0") { force = true }
-    compile group: 'org.aeonbits.owner', name: 'owner', version: '1.0.9'
+    compile "org.seleniumhq.selenium:selenium-java:3.5.3"
+    compile group: 'org.aeonbits.owner', name: 'owner-java8', version: '1.0.9'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
     compile group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '1.7.0'
     testCompile group: 'org.testng', name: 'testng', version: '6.11'

@@ -1,5 +1,6 @@
 package com.automation.remarks.kirk
 
+import com.automation.remarks.kirk.core.PageClass
 import com.automation.remarks.kirk.core.configuration
 import com.automation.remarks.kirk.core.getDriver
 import org.openqa.selenium.WebDriver
@@ -11,7 +12,8 @@ class Kirk {
 
     companion object {
 
-        private val browser
+        @JvmStatic
+        val browser
             get() = Browser()
 
         @JvmStatic
@@ -20,27 +22,32 @@ class Kirk {
         }
 
         @JvmStatic
-        fun <T : Page> open(pageClass: (Browser) -> T): T {
+        fun <T : Page> open(pageClass: PageClass<T>): T {
             return browser.to(pageClass)
         }
 
         @JvmStatic
-        fun <T : Page> open(pageClass: (Browser) -> T, block: T.() -> Unit) {
+        fun <T : Page> open(pageClass: PageClass<T>, block: T.() -> Unit) {
             open(pageClass).block()
         }
 
         @JvmStatic
-        fun <T : Page> at(pageClass: (Browser) -> T): T {
+        fun <T : Page> at(pageClass: PageClass<T>): T {
             return pageClass(browser)
         }
 
         @JvmStatic
-        fun <T : Page> at(pageClass: (Browser) -> T, block: T.() -> Unit) {
+        fun <T : Page> at(pageClass: PageClass<T>, block: T.() -> Unit) {
             at(pageClass).block()
         }
 
+        @JvmStatic
+        fun closeBrowser(){
+            browser.quit()
+        }
+
         fun drive(driver: WebDriver = getDriver(), block: Browser.() -> Unit): Browser {
-            val browser = Browser(driver).with { config = configuration }
+            val browser = Browser(driver).apply { config = configuration }
             browser.block()
             return browser
         }

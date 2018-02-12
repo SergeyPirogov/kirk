@@ -2,6 +2,8 @@ package com.automation.remarks.kirk.test
 
 import com.automation.remarks.kirk.test.helpers.JettyServer
 import io.github.bonigarcia.wdm.FirefoxDriverManager
+import me.tatarka.assertk.Assert
+import me.tatarka.assertk.AssertBlock
 import me.tatarka.assertk.assertions.hasClass
 import org.testng.annotations.AfterSuite
 import org.testng.annotations.BeforeSuite
@@ -34,5 +36,13 @@ abstract class BaseTest {
         }.throwsError {
             it.hasClass(kclass)
         }
+    }
+
+    fun <T> assertThat(f: () -> T): AssertBlock<T> {
+        return me.tatarka.assertk.assert(f)
+    }
+
+    fun <T> assertThat(actual: T): Assert<T> {
+        return me.tatarka.assertk.assert(actual)
     }
 }

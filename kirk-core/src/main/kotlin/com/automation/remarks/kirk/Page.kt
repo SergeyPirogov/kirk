@@ -1,5 +1,6 @@
 package com.automation.remarks.kirk
 
+import com.automation.remarks.kirk.core.PageClass
 import com.automation.remarks.kirk.core.SearchContext
 import com.automation.remarks.kirk.core.Select
 import com.automation.remarks.kirk.ext.select
@@ -19,7 +20,7 @@ abstract class Page(var browser: Browser) : SearchContext by browser {
         return browser.select(cssLocator)
     }
 
-    fun <T : Page> page(pageClass: (Browser) -> T): T {
+    fun <T : Page> page(pageClass: PageClass<T>): T {
         return browser.at(pageClass)
     }
 }

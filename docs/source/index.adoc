@@ -44,9 +44,9 @@ You are able to write tests using DSL
 @Test fun testCanDriveScripts() {
      drive {
         open(url)
-        element("#header").should(have.text("Kirk"))
+        element("#header").shouldHave(text("Kirk"))
         element(".paginator a").click()
-        element("#header").should(have.text("Second page"))
+        element("#header").shouldHave(text("Second page"))
      }
 }
 ----
@@ -60,7 +60,7 @@ Straightforward OOP way
 @Test fun testСanRunBrowser() {
     val browser = Browser(ChromeDriver())
     browser.open(url)
-    browser.element("#header").should(have.text("Kirk"))
+    browser.element("#header").shouldHave(text("Kirk"))
 }
 ----
 
@@ -120,9 +120,9 @@ The Browser class has a static method drive(), that makes a process of writing t
 @Test fun testCanDriveScripts() {
     drive {
        open(url)
-       element("#header").should(have.text("Kirk"))
+       element("#header").shouldHave(text("Kirk"))
        element(".paginator a").click()
-       element("#header").should(have.text("Second page"))
+       element("#header").shouldHave(text("Second page"))
     }
 }
 ----
@@ -134,7 +134,7 @@ This is pretty much the same as
 @Test fun testСanRunBrowser() {
       val browser = Browser(ChromeDriver())
       browser.open(url)
-      browser.element("#header").should(have.text("Kirk"))
+      browser.element("#header").shouldHave(text("Kirk"))
 }
 ----
 
@@ -225,7 +225,7 @@ class StartPage(browser: Browser) : Page(browser) {
 }
 
 Kirk.drive {
-    to(::StartPage).element("#header").should(have.text("Kirk"))
+    to(::StartPage).element("#header").shouldHave(text("Kirk"))
 }
 ----
 
@@ -295,6 +295,47 @@ drive {
 NOTE: `select()` method return lazy element, so interaction with the real webElement
 starts when you call some method ex select(".select").selectByIndex(1)
 
+=== Frame support
+
+Modern web pages more rarely contains frame, but still we have to support this.
+For example you have page with frame.
+
+[source, html]
+----
+<iframe id="test_frame" src="second_page.html" width="200" height="200">
+    alternative content for browsers which do not support iframe.
+</iframe>
+----
+
+To work with elenement inside you have to switch to this frame.
+
+[source, java]
+----
+drive{
+    to(url)
+    toFrame("#test_frame")
+    element("#header").shouldHave(text("Second page"))
+}
+----
+
+or
+
+[source, java]
+----
+drive{
+    to(url)
+    toFrame(element("#test_frame"))
+    element("#header").shouldHave(text("Second page"))
+}
+----
+
+**toFrame()** function returns Browser instance so you can easily chain method calls:
+
+[source, java]
+----
+toFrame("#test_frame").element("#header").shouldBe(visible)
+----
+
 == The Page
 
 To use Page Object pattern, you create subclasses of Page that define with a help of powerful DSL that allows you to refer to content by meaningful names instead of tag names or CSS expressions.
@@ -360,9 +401,57 @@ class TodoAngularTest {
 }
 ----
 
-=== Browse actions listener
+=== Browser actions listener
 
-TBD
+Kirk browser support event listener
+
+[source, java]
+----
+interface KirkEventListener {
+    fun onStart()
+    fun beforeNavigation(url: String, driver: WebDriver)
+    fun afterNavigation(url: String, driver: WebDriver)
+    fun beforeElementLocation(by: By, driver: WebDriver)
+    fun onFail(exception: Exception)
+}
+----
+
+You can use it as shown below
+
+[source, java]
+----
+class LoggerListenerKirk : KirkEventListener {
+    override fun onFail(exception: Exception) = println("Epic Fail")
+
+    override fun beforeElementLocation(by: By, driver: WebDriver) = println("$by")
+
+    override fun afterNavigation(url: String, driver: WebDriver) {}
+
+    override fun onStart() = println("On start")
+
+    override fun beforeNavigation(url: String, driver: WebDriver) = println("Navigation to $url")
+}
+
+val chrome = Browser(listener = LoggerListenerKirk())
+chrome.to(url)
+chrome.element("#header").shouldHave(text("Kirk"))
+----
+
+or by placing value in kirk.properties
+
+----
+kirk.listener = com.automation.remarks.kirk.test.ListenerFromClassPath
+----
+
+and then
+
+[source, java]
+----
+drive {
+    to(url)
+    element("#header").shouldHave(text("Kirk"))
+}
+----
 
 == Alerts
 
@@ -830,6 +919,22 @@ Line thickness in pixels
 - Artyom Anohin
 
 === Changelog
+
+==== 0.8.5
+
+- Classpath Listener support added
+- waitUntil for collection added
+
+==== 0.8.4
+
+- toFrame support added
+- Kirk.closeBrowser() added
+- Kirk.getBrowser() added
+
+==== 0.8.3
+
+- Recreate browse after quit
+- s and ss methods added
 
 ==== 0.8.2
 

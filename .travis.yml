@@ -4,7 +4,7 @@ sudo: required
 language: java
 addons:
   firefox: "latest"
-  chrome: "59"
+  chrome: stable
 
 cache:
   directories:
@@ -17,6 +17,7 @@ before_install:
   - chmod +x gradlew
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
+  - sleep 3 # give xvfb some time to start
 
 script:
   - ./gradlew clean build jacocoTestReport asciidoctor

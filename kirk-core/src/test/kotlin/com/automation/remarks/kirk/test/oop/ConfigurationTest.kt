@@ -33,7 +33,7 @@ class ConfigurationTest : BaseTest() {
 
     @Test fun testCanSetCustomBrowseConfig() {
         ChromeDriverManager.getInstance().setup()
-        val browser = Browser().with {
+        val browser = Browser().apply {
             baseUrl = url
         }
 

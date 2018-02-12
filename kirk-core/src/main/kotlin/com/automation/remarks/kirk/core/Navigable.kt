@@ -1,6 +1,7 @@
 package com.automation.remarks.kirk.core
 
 import com.automation.remarks.kirk.Browser
+import com.automation.remarks.kirk.KElement
 import com.automation.remarks.kirk.Page
 
 /**
@@ -10,14 +11,14 @@ interface Navigable {
 
     fun open(url: String)
 
-    fun <T : Page> to(pageClass: (Browser) -> T): T
+    fun <T : Page> to(pageClass: PageClass<T>): T
 
-    fun <T : Page> to(pageClass: (Browser) -> T, block: T.() -> Unit) {
+    fun <T : Page> to(pageClass: PageClass<T>, block: T.() -> Unit) {
         val page = to(pageClass)
         page.block()
     }
 
-    fun <T : Page> at(pageClass: (Browser) -> T, closure: T.() -> Unit = {}): T
+    fun <T : Page> at(pageClass: PageClass<T>, closure: T.() -> Unit = {}): T
 
     fun back(): Browser
 
@@ -26,4 +27,8 @@ interface Navigable {
     fun refresh(): Browser
 
     fun quit()
+
+    fun toFrame(cssLocator: String): Browser
+
+    fun toFrame(frame: KElement): Browser
 }

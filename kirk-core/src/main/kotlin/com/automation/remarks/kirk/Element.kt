@@ -2,6 +2,7 @@ package com.automation.remarks.kirk
 
 import com.automation.remarks.kirk.conditions.Condition
 import com.automation.remarks.kirk.conditions.not
+import com.automation.remarks.kirk.core.KirkEventListener
 import com.automation.remarks.kirk.core.waitFor
 import com.automation.remarks.kirk.locators.ElementLocator
 import org.openqa.selenium.WebDriver

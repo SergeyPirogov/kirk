@@ -17,7 +17,7 @@ class PageObjectTest : BaseTest() {
 
     @BeforeClass
     fun setUp() {
-        chrome = Browser().with { baseUrl = url }
+        chrome = Browser().apply { baseUrl = url }
         chrome.open(url)
     }
 

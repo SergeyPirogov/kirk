@@ -11,13 +11,14 @@ Simple script example:
 
 ```java
  @Test fun testCanLogin() {
-        Browser.to("http://localhost:8086"){
-            element("#inputEmail3").setValue("admin")
-            element("#inputPassword3").setValue("admin")
-            element("#parent > button").click()
-            element("a.navbar-brand").shouldHave(text("Video service"))
-        }
-    }
+   drive {
+      to("http://localhost:8086")
+      element("#inputEmail3").setValue("admin")
+      element("#inputPassword3").setValue("admin")
+      element("#parent > button").click()
+      element("a.navbar-brand").shouldHave(text("Video service"))
+   }
+}
 ```
 
 [DOCUMENTATION](http://automation-remarks.com/kirk/)

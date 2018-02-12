@@ -2,17 +2,13 @@
 
 package com.automation.remarks.kirk.ext
 
-import com.automation.remarks.kirk.Browser
-import com.automation.remarks.kirk.Configuration
-import com.automation.remarks.kirk.KElement
-import com.automation.remarks.kirk.Kirk
+import com.automation.remarks.kirk.*
 import com.automation.remarks.kirk.core.*
 import org.apache.commons.io.FileUtils
 import org.openqa.selenium.*
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.interactions.Actions
 import org.openqa.selenium.logging.LogEntries
-import org.openqa.selenium.logging.LogType
 import org.openqa.selenium.remote.UnreachableBrowserException
 import java.io.File
 import kotlin.reflect.KClass
@@ -39,15 +35,15 @@ fun WebDriver.saveScreenshot(path: String = "${System.getProperty("user.dir")}/b
 }
 
 fun WebDriver.isAlive(): Boolean {
-    try {
+    return try {
         title
-        return true
+        true
     } catch (e: UnreachableBrowserException) {
-        return false
+        false
     } catch (e: NoSuchWindowException) {
-        return false
+        false
     } catch (e: NoSuchSessionException) {
-        return false
+        false
     }
 }
 
@@ -67,6 +63,10 @@ fun Browser.select(by: By): Select {
     return Select(element(by))
 }
 
+fun Browser.atFrame(cssLocator: String): Browser {
+    return toFrame(cssLocator)
+}
+
 fun Actions.hover(element: KElement) {
     this.moveToElement(element.webElement)
 }
@@ -81,4 +81,32 @@ fun WebDriver.logs(logType: String): LogEntries {
     } else {
         throw UnsupportedOperationException()
     }
+}
+
+fun Browser.s(locator: String): KElement {
+    return if (isXpath(locator))
+        element(By.xpath(locator))
+    else
+        element(locator)
+}
+
+fun Browser.ss(locator: String): KElementCollection {
+    return if (isXpath(locator))
+        all(By.xpath(locator))
+    else
+        all(locator)
+}
+
+fun KElement.s(locator: String): KElement {
+    return if (isXpath(locator))
+        element(By.xpath(locator))
+    else
+        element(locator)
+}
+
+fun KElement.ss(locator: String): KElementCollection {
+    return if (isXpath(locator))
+        all(By.xpath(locator))
+    else
+        all(locator)
 }

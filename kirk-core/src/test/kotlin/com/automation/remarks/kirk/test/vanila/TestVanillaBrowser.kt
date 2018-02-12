@@ -65,12 +65,10 @@ class TestVanillaBrowser : BaseTest() {
     @Test fun testDriverCanOpenSecondDriver() {
         val firstBrowser = drive {
             baseUrl = url
-            startMaximized = false
             open("/")
             element("#header").shouldHave(text("Kirk"))
         }
         drive(ChromeDriver().autoClose()) {
-            startMaximized = false
             open(url)
             element(".paginator a").click()
             at(::SecondPage).header.shouldHave(text("Second page"))

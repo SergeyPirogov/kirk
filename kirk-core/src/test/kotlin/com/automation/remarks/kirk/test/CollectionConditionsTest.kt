@@ -16,7 +16,7 @@ class CollectionConditionsTest : BaseTest() {
 
     @Test
     fun testNotCondition() {
-        me.tatarka.assertk.assert {
+        assertThat {
             Kirk.drive {
                 to(url)
                 all(".list li").shouldNotHave(elementWithText("Один"))
@@ -36,7 +36,7 @@ class CollectionConditionsTest : BaseTest() {
 
     @Test
     fun testCollectionMinimumSizConditionThenBoundaryValueMore() {
-        me.tatarka.assertk.assert {
+        assertThat {
             Kirk.drive {
                 to(url)
                 all("li")[10].shouldBe(visible)
@@ -72,7 +72,7 @@ class CollectionConditionsTest : BaseTest() {
 
     @Test
     fun testCanHandleExceptionForIndexedElement() {
-        me.tatarka.assertk.assert {
+        assertThat {
             Kirk.drive {
                 to(url)
                 all("input[type='button']")[2].shouldHave(attr("value", "Запустит"))

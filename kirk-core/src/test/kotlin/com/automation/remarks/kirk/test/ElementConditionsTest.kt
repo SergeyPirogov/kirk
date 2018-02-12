@@ -7,6 +7,7 @@ import com.automation.remarks.kirk.conditions.visible
 import me.tatarka.assertk.assertions.hasClass
 import me.tatarka.assertk.assertions.hasMessageStartingWith
 import org.openqa.selenium.TimeoutException
+import org.testng.annotations.AfterClass
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 
@@ -19,10 +20,15 @@ class ElementConditionsTest : BaseTest() {
 
     @BeforeClass
     fun setUp() {
-        chrome = Browser().with {
+        chrome = Browser().apply {
             baseUrl = url
         }
         chrome.open(url)
+    }
+
+    @AfterClass
+    fun closeBrowser(){
+        chrome.quit()
     }
 
     @Test fun testTextConditionPositive() {
@@ -46,7 +52,7 @@ class ElementConditionsTest : BaseTest() {
     }
 
     @Test fun testNotConditionText() {
-        me.tatarka.assertk.assert {
+        assertThat {
             chrome.element("#header").shouldNotHave(text("Kirk"))
         }.throwsError {
             it.hasClass(TimeoutException::class)
@@ -62,7 +68,7 @@ class ElementConditionsTest : BaseTest() {
     }
 
     @Test fun testTextConditionFailMassage() {
-        me.tatarka.assertk.assert {
+        assertThat {
             chrome.element("#header").shouldHave(text("irk"))
         }.throwsError {
             it.hasClass(TimeoutException::class)
@@ -78,7 +84,7 @@ class ElementConditionsTest : BaseTest() {
     }
 
     @Test fun testElementVisibilityConditionFailMassage() {
-        me.tatarka.assertk.assert {
+        assertThat {
             chrome.element("#input_invisible").shouldBe(visible)
         }.throwsError {
             it.hasClass(TimeoutException::class)
@@ -94,7 +100,7 @@ class ElementConditionsTest : BaseTest() {
     }
 
     @Test fun testElementAttrConditionFailMassage() {
-        me.tatarka.assertk.assert {
+        assertThat {
             chrome.element(".paginator a").shouldHave(attr("href", "second_page.html"))
         }.throwsError {
             it.hasClass(TimeoutException::class)
@@ -110,7 +116,7 @@ class ElementConditionsTest : BaseTest() {
     }
 
     @Test fun testConditionWaitUntilText() {
-        me.tatarka.assertk.assert {
+        assertThat {
             chrome.element("#input_invisible").waitUntil(visible, 6000)
         }.throwsError {
             it.hasClass(TimeoutException::class)

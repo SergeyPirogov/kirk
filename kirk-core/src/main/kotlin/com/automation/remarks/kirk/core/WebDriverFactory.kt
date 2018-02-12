@@ -61,7 +61,7 @@ class WebDriverFactory {
 
     private fun createRemoteDriver(browser: String): WebDriver {
         val remoteUrl = configuration.remoteUrl()
-        var capabilities: DesiredCapabilities = DesiredCapabilities()
+        var capabilities = DesiredCapabilities()
         when (browser) {
             CHROME -> capabilities = DesiredCapabilities.chrome().merge(getOptions())
             FIREFOX -> capabilities = DesiredCapabilities.firefox()
@@ -70,7 +70,7 @@ class WebDriverFactory {
         try {
             return RemoteWebDriver(URI.create(remoteUrl).toURL(), capabilities
                     .merge(getCapabilities()))
-        } catch (ex: Exception){
+        } catch (ex: Exception) {
             System.err.println("""
                 ====== Error to start RemoteWebdriver session ======
                 $ex
@@ -131,4 +131,13 @@ var configuration: Configuration = loadConfig(Configuration::class)
 
 fun getDriver(): WebDriver {
     return driverFactory.getDriver()
+}
+
+fun getListener(): KirkEventListener {
+    val listenerClass = configuration.listenerClass()
+    return if (listenerClass.isBlank()) {
+        AbstractKirkEventListener()
+    } else {
+        Class.forName(listenerClass).newInstance() as KirkEventListener
+    }
 }

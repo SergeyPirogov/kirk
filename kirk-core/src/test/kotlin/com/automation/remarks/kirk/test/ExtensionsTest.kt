@@ -14,6 +14,6 @@ class ExtensionsTest : BaseTest() {
     fun testCanVerifyDriverInNotAliveAfterClose() {
         val driver = WebDriverFactory().getDriver()
         driver.quit()
-        me.tatarka.assertk.assert(driver.isAlive()).isEqualTo(false)
+        assertThat(driver.isAlive()).isEqualTo(false)
     }
 }

@@ -78,25 +78,6 @@ fun poolingInterval(): PoolingIntervalDelegate {
     return PoolingIntervalDelegate()
 }
 
-class StartMaximizedDelegate {
-    private var prop: Boolean? = null
-
-    operator fun getValue(browser: Browser, property: KProperty<*>): Boolean? {
-        if (prop == null) {
-            return browser.config.startMaximized()
-        }
-        return prop
-    }
-
-    operator fun setValue(browser: Browser, property: KProperty<*>, value: Boolean?) {
-        prop = value
-    }
-}
-
-fun startMaximized(): StartMaximizedDelegate {
-    return StartMaximizedDelegate()
-}
-
 class ScreenSizeDelegate {
     private var prop: List<Int> = listOf()
 
