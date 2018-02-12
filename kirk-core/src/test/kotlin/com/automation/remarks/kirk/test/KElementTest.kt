@@ -1,6 +1,7 @@
 package com.automation.remarks.kirk.test
 
 import com.automation.remarks.kirk.Browser
+import com.automation.remarks.kirk.KElement
 import com.automation.remarks.kirk.Kirk.Companion.drive
 import com.automation.remarks.kirk.conditions.cssClass
 import com.automation.remarks.kirk.conditions.exactText
@@ -17,7 +18,8 @@ import org.testng.annotations.Test
  */
 class KElementTest : BaseTest() {
 
-    @Test fun testCanFindFirstChild() {
+    @Test
+    fun testCanFindFirstChild() {
         // tag::child[]
         drive {
             to(url)
@@ -27,14 +29,16 @@ class KElementTest : BaseTest() {
         // end::child[]
     }
 
-    @Test fun testCanFindLastChild() {
+    @Test
+    fun testCanFindLastChild() {
         drive {
             to(url)
             s("ul").lastChild().shouldHave(text("Три"))
         }
     }
 
-    @Test fun testCanFindFirstParent() {
+    @Test
+    fun testCanFindFirstParent() {
         // tag::parent[]
         drive {
             to(url)
@@ -43,14 +47,16 @@ class KElementTest : BaseTest() {
         // end::parent[]
     }
 
-    @Test fun testCanFindChildren() {
+    @Test
+    fun testCanFindChildren() {
         drive {
             to(url)
             element("ul#with_children").children("li").shouldHave(exactText("1", "2", "2.1", "2.2", "3", "3.1", "3.2"))
         }
     }
 
-    @Test fun testCanUploadFile() {
+    @Test
+    fun testCanUploadFile() {
         // tag::uploadFile[]
         drive {
             element("input").uploadFile("")
@@ -58,7 +64,8 @@ class KElementTest : BaseTest() {
         // end::uploadFile[]
     }
 
-    @Test fun testCanCompose() {
+    @Test
+    fun testCanCompose() {
         Browser().apply {
             to(url)
             // tag::composition[]
@@ -67,13 +74,29 @@ class KElementTest : BaseTest() {
         }
     }
 
-    @Test fun testCanScrollToElement() {
+    @Test
+    fun testCanScrollToElement() {
         drive {
             to(url)
             interact {
                 scrollTo(element("#invisible_link"))
                 hover(element("#invisible_link"))
             }
+        }
+    }
+
+    @Test
+    fun testCanRecognizeLocator() {
+        drive {
+            to(url)
+            s("#header").shouldHave(text("Kirk"))
+            s("//*[@id='header']").shouldHave(text("Kirk"))
+            assertThat(s("//*[@class='inner_link']/parent::div")).equals(element("#parent_div"))
+            assertThat(s(".list > li:nth-child(1)").text).isEqualTo("Один")
+            assertThat(s(".//*[@class='list']/li[1]").text).isEqualTo("Один")
+            s("ul.list").all("li").shouldHave(size(3))
+            s(".//ul[@class='list']").ss(".//li").shouldHave(size(3))
+            ss(".//*[@class='list']/li").shouldHave(size(3))
         }
     }
 
@@ -104,21 +127,5 @@ class ExpectAny<T>(private val subject: KElement) {
 
     fun text(text: String) {
         subject.shouldHave(com.automation.remarks.kirk.conditions.text(text))
-    }
-}
-
-
-    @Test fun testCanRecognizeLocator() {
-        drive {
-            to(url)
-            s("#header").shouldHave(text("Kirk"))
-            s("//*[@id='header']").shouldHave(text("Kirk"))
-            assertThat(s("//*[@class='inner_link']/parent::div")).equals(element("#parent_div"))
-            assertThat(s(".list > li:nth-child(1)").text).isEqualTo("Один")
-            assertThat(s(".//*[@class='list']/li[1]").text).isEqualTo("Один")
-            s("ul.list").all("li").shouldHave(size(3))
-            s(".//ul[@class='list']").ss(".//li").shouldHave(size(3))
-            ss(".//*[@class='list']/li").shouldHave(size(3))
-        }
     }
 }
