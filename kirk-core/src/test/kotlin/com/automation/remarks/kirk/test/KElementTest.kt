@@ -72,7 +72,37 @@ class KElementTest : BaseTest() {
             }
         }
     }
+
+    @Test
+    fun testCanTest() {
+        drive {
+            to(url)
+            element("#invisible_link")
+                    .should
+                    .have
+                    .text("Invisible link")
+        }
+    }
 }
+
+
+val KElement.should: ExpectAny<KElement>
+    get() {
+        return ExpectAny(this)
+    }
+
+class ExpectAny<T>(private val subject: KElement) {
+
+    val have: ExpectAny<T>
+        get() {
+            return this
+        }
+
+    fun text(text: String) {
+        subject.shouldHave(com.automation.remarks.kirk.conditions.text(text))
+    }
+}
+
 
 fun Browser.s(cssLocator: String): KElement {
     return element(cssLocator)
