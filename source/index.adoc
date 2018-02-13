@@ -1,0 +1,998 @@
+= **Kirk** - pragmatic UI test automation
+
+Doc Writer <http://automation-remarks.com>
+
+Kirk is a browser automation library for Kotlin. It's basically a Selenium-WebDriver wrapper library inspired by Selenide and Geb.
+
+- No Page Factory
+- No @FindBy
+- Pragmatic DSL
+- Informative error messages
+- Automatic Driver Management
+- Straightforward Page Objects
+- Chrome browser is a default
+- Automatic screenshots on fail
+
+== Installation
+
+Kirk is available in Maven Central. The latest version is **{VERSION}**
+
+.Gradle
+[subs="attributes"]
+----
+compile group: 'com.automation-remarks', name: 'kirk', version: '{VERSION}'
+----
+
+.Maven
+[source, xml]
+----
+<dependency>
+    <groupId>com.automation-remarks</groupId>
+    <artifactId>kirk</artifactId>
+    <version>{VERSION}</version>
+</dependency>
+----
+
+== Basic usage
+
+=== Simple script example
+
+You are able to write tests using DSL
+
+[source, java]
+----
+@Test fun testCanDriveScripts() {
+     drive {
+        open(url)
+        element("#header").shouldHave(text("Kirk"))
+        element(".paginator a").click()
+        element("#header").shouldHave(text("Second page"))
+     }
+}
+----
+
+=== Browser instance usage example
+
+Straightforward OOP way
+
+[source, java]
+----
+@Test fun testСanRunBrowser() {
+    val browser = Browser(ChromeDriver())
+    browser.open(url)
+    browser.element("#header").shouldHave(text("Kirk"))
+}
+----
+
+=== Error messages
+
+----
+failed while waiting 4 seconds
+to assert text
+for element located {By.cssSelector: #button}
+reason: condition did not match
+   expected: [K]irk
+   actual: []irk
+
+   screenshot: file:///kirk/build/reports/screen_1499188301800.png
+----
+
+== The Browser
+
+The entry point to Kirk is the Browser object.
+
+The default constructor of Browser class instantiates ChromeDriver.
+----
+import Browser
+
+val browser = Browser()
+----
+
+However, if you prefer to specify the driver implementation,
+you can pass it using secondary constructor
+
+----
+import Browser
+
+val browser = Browser(FirefoxDriver())
+----
+
+Browser instance can be configured using code example below:
+
+[source, java]
+----
+val chrome = Browser(FirefoxDriver()).with {
+            baseUrl = "http://local:8080"
+            autoClose = true
+            startMaximized = false
+            screenSize = listOf(640,480)
+}
+----
+
+Any property set this way will override any settings coming from the config mechanism.
+
+=== The `drive()` method
+
+The Browser class has a static method drive(), that makes a process of writing tests much easier.
+
+[source, java]
+----
+@Test fun testCanDriveScripts() {
+    drive {
+       open(url)
+       element("#header").shouldHave(text("Kirk"))
+       element(".paginator a").click()
+       element("#header").shouldHave(text("Second page"))
+    }
+}
+----
+
+This is pretty much the same as
+
+[source, java]
+----
+@Test fun testСanRunBrowser() {
+      val browser = Browser(ChromeDriver())
+      browser.open(url)
+      browser.element("#header").shouldHave(text("Kirk"))
+}
+----
+
+The closure is evaluated against created browser instance.
+You can access all top level methods and properties declared in the Browser class.
+
+=== Base URL support
+
+Browser instances maintain a baseUrl property that is used to resolve all relative URLs.
+The value can be defined using configuration or can be explicitly set on the browser.
+
+For example your site URL is `http://locahost:8086/`. You can use is as shown below
+
+.kirk.properties
+----
+kirk.baseUrl=http://localhost:8086/
+----
+
+And now method `open()` use relative path
+
+[source, java]
+----
+Kirk.drive {
+   open("/")
+   ...
+}
+----
+
+Or you can define base URL using browser instance
+
+[source, java]
+----
+val browser = Browser().with{
+     baseUrl = "http://localhost:8086/"
+}
+
+browser.open("/")
+----
+
+=== Absolute URL support
+
+As well as parent url, Kirk allows to navigate pages using absolute url
+
+[source, java]
+----
+Kirk.drive {
+   open("http://localhost:8086/login")
+   at(::LoginPage).loginAs("admin","admin")
+}
+----
+
+Absolute url can be defined inside author <email> page object
+
+[source, java]
+----
+class StartPage(browser: Browser) : Page(browser) {
+    override val url: String?
+        get() = "http://localhost:8086/login"
+}
+
+Kirk.drive {
+    to(::StartPage).element("#header").shouldHave(text("Kirk"))
+}
+----
+
+NOTE: It is better to use relative path, because of maintenance reason. For example
+you can easily manage properties for different environments Dev, QA, Stage etc.
+
+or
+
+[source, java]
+----
+Kirk.open(::StartPage).element("#header") should have.text("Kirk")
+----
+
+NOTE: method `should` is infix, so you can call it like in example above
+
+=== Page object support
+
+Page objects is one of the pattern that is highly recommended to use in Test Automation projects.
+Kirk page can define an optional url variable that will be used to navigate to that page. This is done with the `to()` method.
+
+[source, java]
+----
+class StartPage(browser: Browser) : Page(browser) {
+    override val url: String?
+        get() = "/"
+}
+
+Kirk.drive {
+    to(::StartPage).element("#header").shouldHave(text("Kirk"))
+}
+----
+
+The `to()` method makes a request to the resolved URL and navigates to the target page. Method `to()` is overloaded so it can accept
+lambda as a second parameter and points to the instance of that page.
+
+[source, java]
+----
+drive {
+    to(::StartPage) {
+       element("#header").shouldHave(text("Kirk"))
+    }
+}
+----
+
+Page lambda scope has access to all public methods and variable declared inside page object class.
+
+=== Auto close browser support
+
+Browser will automatically close at the end of either single test execution or
+bunch of tests. This behaviour can be changed by setting property **autoClose=true**
+in a config file or system property.
+
+=== Complex element interaction support
+
+In case if you need to perform some complex operations on the page
+
+[source, java]
+----
+drive{
+  interact {
+     keyDown(Keys.CONTROL)
+     click(element(By.name("genres")).firstChild())
+     click(element(By.name("genres")).lastChild())
+     keyUp(Keys.CONTROL)
+  }
+}
+----
+
+=== `Select` element support
+
+The Browser class has only one method `select()` that returns element type Select.
+
+For example you have list on your page:
+
+[source, html]
+----
+<select ng-model="operator" class="span1 ng-pristine ng-valid ng-touched" ng-options="value for (key, value) in operators">
+    <option value="ADDITION" selected="selected">+</option>
+    <option value="DIVISION">/</option>
+    <option value="MODULO">%</option>
+    <option value="MULTIPLICATION">*</option>
+    <option value="SUBTRACTION">-</option>
+</select>
+----
+
+Than you are able to write:
+
+[source, java]
+----
+drive {
+     to(url)
+     select("select[ng-model='operator']").selectByVisibleText("+")
+}
+----
+
+NOTE: `select()` method return lazy element, so interaction with the real webElement
+starts when you call some method ex select(".select").selectByIndex(1)
+
+=== Frame support
+
+Modern web pages more rarely contains frame, but still we have to support this.
+For example you have page with frame.
+
+[source, html]
+----
+<iframe id="test_frame" src="second_page.html" width="200" height="200">
+    alternative content for browsers which do not support iframe.
+</iframe>
+----
+
+To work with elenement inside you have to switch to this frame.
+
+[source, java]
+----
+drive{
+    to(url)
+    toFrame("#test_frame")
+    element("#header").shouldHave(text("Second page"))
+}
+----
+
+or
+
+[source, java]
+----
+drive{
+    to(url)
+    toFrame(element("#test_frame"))
+    element("#header").shouldHave(text("Second page"))
+}
+----
+
+**toFrame()** function returns Browser instance so you can easily chain method calls:
+
+[source, java]
+----
+toFrame("#test_frame").element("#header").shouldBe(visible)
+----
+
+== The Page
+
+To use Page Object pattern, you create subclasses of Page that define with a help of powerful DSL that allows you to refer to content by meaningful names instead of tag names or CSS expressions.
+
+.Todo page example
+[source, java]
+----
+class TodoPage(browser: Browser) : Page(browser) {
+    override val url: String?
+        get() = "http://todomvc.com/examples/angularjs/"
+
+    val counter = element("#todo-count strong")
+    val taskList = all("label.ng-binding")
+
+    fun addTasks(vararg tasks: String) {
+        for (task in tasks) {
+            element("#new-todo")
+                    .setValue(task)
+                    .pressEnter()
+        }
+    }
+
+    fun deleteTask(name: String) {
+        browser.interact { hover(element("#todo-list li div input")) }
+        element(byXpath("//label[text()='$name']/following-sibling::button"))
+                .click()
+    }
+
+    fun deactivateTask(vararg tasks: String) {
+        for (task in tasks) {
+            element(byXpath("//label[text()='$task']/preceding-sibling::input")).click()
+        }
+    }
+
+    fun goToCompletedTab() {
+        element("#filters li:nth-child(3) a").click()
+    }
+}
+----
+
+.Test class
+[source, java]
+----
+class TodoAngularTest {
+    @Test fun testCanAddNewTaskAndDelete() {
+        open(::TodoPage) {
+            addTasks("Item0")
+            taskList.shouldHave(size(1))
+            deleteTask("Item0")
+            taskList.shouldHave(size(0))
+        }
+    }
+
+    @Test fun testCanDeactivateTask() {
+        open(::TodoPage) {
+            addTasks("A", "B", "C")
+            deactivateTask("A")
+            counter.shouldHave(text("2"))
+            goToCompletedTab()
+            taskList.shouldHave(exactText("A"))
+        }
+    }
+}
+----
+
+=== Browser actions listener
+
+Kirk browser support event listener
+
+[source, java]
+----
+interface KirkEventListener {
+    fun onStart()
+    fun beforeNavigation(url: String, driver: WebDriver)
+    fun afterNavigation(url: String, driver: WebDriver)
+    fun beforeElementLocation(by: By, driver: WebDriver)
+    fun onFail(exception: Exception)
+}
+----
+
+You can use it as shown below
+
+[source, java]
+----
+class LoggerListenerKirk : KirkEventListener {
+    override fun onFail(exception: Exception) = println("Epic Fail")
+
+    override fun beforeElementLocation(by: By, driver: WebDriver) = println("$by")
+
+    override fun afterNavigation(url: String, driver: WebDriver) {}
+
+    override fun onStart() = println("On start")
+
+    override fun beforeNavigation(url: String, driver: WebDriver) = println("Navigation to $url")
+}
+
+val chrome = Browser(listener = LoggerListenerKirk())
+chrome.to(url)
+chrome.element("#header").shouldHave(text("Kirk"))
+----
+
+or by placing value in kirk.properties
+
+----
+kirk.listener = com.automation.remarks.kirk.test.ListenerFromClassPath
+----
+
+and then
+
+[source, java]
+----
+drive {
+    to(url)
+    element("#header").shouldHave(text("Kirk"))
+}
+----
+
+== Alerts
+
+Nowadays alerts is not widely used in modern web applications, however Kirk allows to interact with alert windows
+
+.accept alert
+[source, java]
+----
+drive {
+    to(url)
+    alert.accept()
+}
+----
+
+.dismiss alert
+[source, java]
+----
+drive {
+    to(url)
+    alert.dismiss()
+}
+----
+
+.verify alert text
+[source, java]
+----
+drive {
+    to(url)
+    assert(alert.text == "Hello buddy")
+}
+----
+
+== Web page interaction
+
+Test automation engineers spend a lot of time writing query
+selectors and element locators to find element on a given page.
+
+Kirk provides a set of methods that helps to interact with page elements.
+
+=== The `element()` function
+
+The element function is the access point to the page content.
+It returns a KElement object that is a representation of WebElement that we interact with.
+
+==== Using CSS locators
+
+Function `element()` accepts a String parameter as a cssLocator
+
+.find element by id = header
+[source, java]
+----
+element("#header")
+----
+
+.find element by css class = .paginator
+[source, java]
+----
+element(".paginator")
+----
+
+.find element by tag = footer
+[source, java]
+----
+element("footer")
+----
+
+==== Using Webdriver's By locator
+
+For `element()` there is an equivalent signature where an instance of WebDriver’s By selector can be used instead of a String.
+
+.find element by id = header
+[source, java]
+----
+element(By.id("#header"))
+----
+
+.find element by css class = .paginator
+[source, java]
+----
+element(By.className(".paginator"))
+----
+
+.find element by tag = footer
+[source, java]
+----
+element(By.tagName("footer"))
+----
+
+IMPORTANT: Using CSS selectors is the preferred way to use in Kirk.
+For XPath selectors another convenience mechanism is provided.
+
+==== Using XPATH locators
+
+XPATH is a powerful element location mechanism that can be used in Kirk
+
+.find element by xpath = //div[@text()='name']
+[source, java]
+----
+element(byXpath("//div[@text()='name']"))
+----
+
+or equivalent
+
+.find element by xpath = //div[@text()='name']
+[source, java]
+----
+element(By.xpath("//div[@text()='name']"))
+----
+
+==== Using `element()` composition
+
+It is also possible to locate element. To do this, simply call the **element()** function chain
+
+Let's look at example below:
+
+[source, html]
+----
+<div>
+    <ul class="list">
+        <li>One</li>
+        <li>Two</li>
+        <li>Three</li>
+    </ul>
+</div>
+----
+
+.find element "a" inside "div"
+[source, java]
+----
+element("ul.list").all("li").shouldHave(size(3))
+----
+
+Also there are some additional useful methods
+
+- firstChild
+- lastChild
+- parent
+- children
+
+[source, java]
+----
+drive {
+    to(url)
+    element("ul").firstChild().shouldHave(text("One"))
+    element("ul").lastChild().shouldHave(text("Three"))
+}
+----
+
+[source, java]
+----
+element("div.b").parent().shouldHave(cssClass("a"))
+----
+
+NOTE: It's better to use CSS or Xpath locators to achieve the same result
+
+== The `KElement`
+
+The KElement class is a representation of WebElement, we want to interact with.
+
+IMPORTANT: The `element()` method returns lazy initialized element, so interaction with
+the real webElement starts when you call some mentod:
+
+Example
+
+[source, java]
+----
+val header = element("#header") // <1>
+
+element.click() // <2>
+----
+<1> element initialization, browser doesn't pool the web page
+<2> element interaction, browser starts pooling the page
+
+==== Press enter
+
+[source, java]
+----
+element("#selector").pressEnter()
+----
+
+==== Upload file
+
+KElement has useful methods that help to write tests. Example file upload
+
+.upload file
+[source, java]
+----
+drive {
+   element("input").uploadFile("/home/user/file.pdf")
+}
+----
+
+=== Conditions
+
+To make code more readable and concise Kirk provide useful methods that allow to asset different conditions
+either for single element or collection of elements.
+
+You can evaluate conditions using method listed below:
+
+Positive:
+
+- should()
+- shouldHave()
+- shoulBe()
+
+Negative:
+
+- shouldNot()
+- shouldNotHave()
+- shouldNotBe()
+
+Example:
+
+[source, java]
+----
+element("#h1").shouldHave(text("This is test"))
+----
+
+also the same can be aplicable for collection
+
+[source, java]
+----
+all("li").shouldHave(size(3))
+----
+
+All the conditions that currently supported by Kirk are listed in souce files **Have.kt** and **Be.kt**
+
+https://github.com/SergeyPirogov/kirk/blob/master/kirk-core/src/main/kotlin/com/automation/remarks/kirk/conditions/Have.kt[Have conditions]
+
+https://github.com/SergeyPirogov/kirk/blob/master/kirk-core/src/main/kotlin/com/automation/remarks/kirk/conditions/Be.kt[Be conditions]
+
+IMPORTANT: All should* methods evaluate condition with timeout. This means that should method will wait for condition true until **timeout** exceeds.
+By defult timeout is 4 seconds, but it can be hanged via Config (see Configuration section).
+
+==== Wait until conditions
+
+There are some cases when you need to wait sindle element before doind some actions. In such cases you should use `waitUnit()` method:
+
+[source, java]
+----
+element(".spinner_button").waitUntil(visible, 6000).click()
+----
+
+NOTE: WaitUntil will evaluate condition until custom timeout exceeds.
+
+=== Element collection
+
+Kirk allow to locate collection of elements
+
+[source, java]
+----
+all(".list li").shoulBe(visible)
+----
+
+==== Collection filter
+
+It's possible to filter collection elements using **filterBy()**
+
+[source, java]
+----
+all(".list li").filterBy(text("One")).shoulHave(size(1))
+---- 
+
+== Configuration
+
+Configuration can be made using several ways:
+
+- kirk.properties file
+- System properties
+- Custom property directly in code
+
+Configuration is made by using http://owner.aeonbits.org/docs/variables-expansion/[Java Owner library]
+
+=== Kirk property file
+
+Just create file **kirk.properties** in **src/main/resources** or **src/test/resources** of the project.
+It's possible to set such variables:
+
+----
+kirk.browser=chrome                // firefox, ie
+kirk.timeout=4000
+kirk.poolingInterval=0.1
+kirk.startMaximized=true
+kirk.autoClose=false
+kirk.screenSize=1920,1080          // empty by default
+kirk.baseUrl=http://localhost:8086 // empty by default
+----
+
+=== System properties
+
+As well as using property file, you can pass configuration via System properties
+
+----
+System.setProperty("kirk.timeout","6000")
+System.setProperty("kirk.startMaximized","true")
+System.setProperty("kirk.baseUrl","http://192.168.0.1:8086")
+----
+
+IMPORTANT: System properties have higher priority, so that by setting system
+property you override value from property file
+
+=== Custom property in source code
+
+You can define property directly in code
+
+[source, java]
+----
+val chrome = Browser(FirefoxDriver()).with {
+            baseUrl = "http://local:8080"
+            autoClose = true
+            startMaximized = false
+            screenSize = listOf(640,480)
+}
+----
+
+=== Custom configuration interface
+
+Define custom interface of type **Configuration**
+
+[source, java]
+----
+@Sources("classpath:browser.properties")
+interface CustomConfig : Configuration {
+    @DefaultValue("2000")
+    @Key("firefox.timeout")
+    override fun timeout(): Int
+
+    @Key("autoClose")
+    @DefaultValue("true")
+    override fun autoClose(): Boolean
+}
+----
+
+Use it in your code
+
+[source, java]
+----
+val browser = Browser().with {
+     config = loadConfig(CustomConfig::class)
+}
+----
+
+You can use it for single instance alongside with System properties and
+**kirk.properties** file
+
+=== Driver implementation config
+
+You are able to change the target browser in which to run tests. This is possible by changing
+single property value **kirk.browser**.
+
+For now it's support for Chrome (default), Firefox and Internet Explorer.
+
+----
+kirk.browser = firefox
+----
+
+=== Chrome Options support
+
+==== Args
+You are able to set custom https://sites.google.com/a/chromium.org/chromedriver/capabilities[Chrome Options] in your tests.
+To do that, you should set **kirk.chrome.args** value
+
+----
+kirk.chrome.args=headless, disable-gpu
+----
+
+==== Binary
+
+It's possible to set path to chrome binary
+
+----
+kirk.chrome.binary = path/to/your/chrome/bin
+----
+
+==== Extensions
+
+It's possible to add extensions
+
+----
+kirk.chrome.extensions = /path/extentions
+----
+
+=== Remote Driver support
+
+It's possible to run tests with the remote driver.
+
+----
+kirk.browser = chrome
+kirk.remote.url=http://35.184.156.125:4444/wd/hub
+----
+
+Kirk will automatically create RemoteDriver and run tests.
+
+=== Desired capabilities support
+
+Kirk supports custom desired capabilities
+
+----
+kirk.desired.capabilities = version=59.0, enableVNC=true
+----
+
+=== Highlight Element style
+
+It's possible to customization highlight in screenshot
+
+Just create file **kirk.properties** in **src/main/resources** or **src/test/resources** of the project.
+It's possible to set such variables:
+
+----
+kirk.highlight.border=true      // default true
+kirk.highlight.style=dotted
+kirk.highlight.size=2px
+kirk.highlight.color=red
+----
+
+==== Highlight Border
+
+Enable *true* or disable *false* border highlight
+
+==== Highlight Style
+
+The border-style property sets the style of an element's four borders. This property can have next values:
+
+
+|===
+|Header 1 |Header 2
+
+|dotted
+|Specifies a dotted border
+
+|dashed
+|Specifies a dashed border
+
+|solid
+|Specifies a solid border
+
+|double
+|Specifies a double border
+
+|groove
+|Specifies a 3D grooved border
+
+|ridge
+|Specifies a 3D ridged border
+
+|inset
+|Specifies a 3D inset border
+
+|outset
+|Specifies a 3D outset border
+|===
+
+
+==== Highlight Size
+
+Line thickness in pixels
+
+== About
+
+
+=== Contributors
+
+- Sergey Pirogov (Author)
+- Alexey Panashchenko
+- Artyom Anohin
+
+=== Changelog
+
+==== 0.8.5
+
+- Classpath Listener support added
+- waitUntil for collection added
+
+==== 0.8.4
+
+- toFrame support added
+- Kirk.closeBrowser() added
+- Kirk.getBrowser() added
+
+==== 0.8.3
+
+- Recreate browse after quit
+- s and ss methods added
+
+==== 0.8.2
+
+- Description fixed for indexed collection element
+- clickable condition added
+- General waiter exception description improved
+
+==== 0.8.1
+
+- StaleElementException fix for collection
+
+==== 0.8
+
+- Kotlin 1.1.4-2
+- scrollTo returns KElement
+- remote driver fail logging added
+
+==== v0.7.5
+
+- waitUntil() added
+- Browser logs() support added
+- Remote Driver support added
+- Desired Capabilities support added
+
+==== v0.7.4
+
+- Conditions refactoring
+- .shouldHave() and .shouldBe() added for element and collection
+- .filterBy() added for collection
+- Kirk event listener added
+- Screenshot container fix
+- Highlight config added (thank's https://github.com/ArtyomAnohin[ArtyomAnohin])
+
+==== v0.7.3
+
+- hover, click, scrollTo added
+- chrome binary and extensions support added (thank's https://github.com/apanashchenko[apanashchenko])
+- currentUrl added for Page
+- browser current url is not lazy anymore
+- java compatibility improved for Be conditions
+
+==== v0.7.2
+
+- Conditions refactoring
+- Kirk class added
+- Chrome Options args support added
+
+==== v0.7.1
+
+- Internal refactoring
+- Element extensions added
+
+==== v0.7
+
+- Browser factory added
+- Configuration support added
+- Element variables added: title, text etc.
+
+==== v0.6
+
+- First public release
