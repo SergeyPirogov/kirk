@@ -104,26 +104,18 @@ class KElementTest : BaseTest() {
     fun testCanTest() {
         drive {
             to(url)
-            element("#invisible_link")
-                    .should
-                    .have
-                    .text("Invisible link")
+            element("#invisible_link").expected.text("Invisible link")
         }
     }
 }
 
 
-val KElement.should: ExpectAny<KElement>
+val KElement.expected: ExpectAny<KElement>
     get() {
         return ExpectAny(this)
     }
 
 class ExpectAny<T>(private val subject: KElement) {
-
-    val have: ExpectAny<T>
-        get() {
-            return this
-        }
 
     fun text(text: String) {
         subject.shouldHave(com.automation.remarks.kirk.conditions.text(text))
