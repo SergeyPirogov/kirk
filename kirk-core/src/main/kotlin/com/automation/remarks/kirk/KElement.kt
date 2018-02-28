@@ -44,6 +44,9 @@ class KElement(locator: ElementLocator<WebElement>,
     val classes: List<String>
         get() = webElement.classes
 
+    val should: KElementCondition
+        get() { return KElementCondition(this.driver, this.locator,this.waitTimeout, this.waitPoolingInterval)}
+
     fun attr(name: String): String {
         return webElement.getAttribute(name)
     }
@@ -83,14 +86,6 @@ class KElement(locator: ElementLocator<WebElement>,
 
     fun parent(): KElement {
         return this.element(By.xpath(".."))
-    }
-
-    infix fun should(condition: ElementCondition) {
-        super.should(condition)
-    }
-
-    infix fun shouldNot(condition: ElementCondition) {
-        super.shouldNot(condition)
     }
 
     fun waitUntil(condition: ElementCondition, timeout: Int = this.waitTimeout): KElement {

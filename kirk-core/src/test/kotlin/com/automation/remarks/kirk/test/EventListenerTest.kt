@@ -46,6 +46,8 @@ class ListenerFromClassPath : AbstractKirkEventListener() {
 }
 
 class LoggerListenerKirk : KirkEventListener {
+    override fun beforeQuit() {}
+
     override fun onFail(exception: Exception) = println("Epic Fail")
 
     override fun beforeElementLocation(by: By, driver: WebDriver) = println("$by")
