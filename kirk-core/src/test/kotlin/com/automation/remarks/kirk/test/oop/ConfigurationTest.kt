@@ -4,12 +4,15 @@ import com.automation.remarks.kirk.Browser
 import com.automation.remarks.kirk.Configuration
 import com.automation.remarks.kirk.conditions.size
 import com.automation.remarks.kirk.test.BaseTest
-import io.github.bonigarcia.wdm.ChromeDriverManager
+import io.github.bonigarcia.wdm.WebDriverManager
 import me.tatarka.assertk.assert
 import me.tatarka.assertk.assertions.hasSize
 import me.tatarka.assertk.assertions.isEqualTo
 import me.tatarka.assertk.assertions.isInstanceOf
-import org.aeonbits.owner.Config.*
+import org.aeonbits.owner.Config.DefaultValue
+import org.aeonbits.owner.Config.Key
+import org.aeonbits.owner.Config.Separator
+import org.aeonbits.owner.Config.Sources
 import org.aeonbits.owner.ConfigFactory
 import org.testng.annotations.Test
 
@@ -31,8 +34,9 @@ class ConfigurationTest : BaseTest() {
         assert(config.chromeArgs()).hasSize(3)
     }
 
-    @Test fun testCanSetCustomBrowseConfig() {
-        ChromeDriverManager.getInstance().setup()
+    @Test
+    fun testCanSetCustomBrowseConfig() {
+        WebDriverManager.chromedriver().setup()
         val browser = Browser().apply {
             baseUrl = url
         }

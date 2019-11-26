@@ -11,14 +11,14 @@ buildscript {
 
 dependencies {
     compile "org.seleniumhq.selenium:selenium-java:3.5.3"
-    compile group: 'org.aeonbits.owner', name: 'owner-java8', version: '1.0.9'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
-    compile group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '1.7.0'
-    testCompile group: 'org.testng', name: 'testng', version: '6.11'
-    testCompile 'me.tatarka.assertk:assertk:1.0-SNAPSHOT'
-    testCompile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.4.6.v20170531'
-    testCompile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.4.6.v20170531'
-    testCompile 'org.seleniumhq.selenium:selenium-server:3.0.1'
+    compile "org.aeonbits.owner:owner-java8:1.0.9"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "io.github.bonigarcia:webdrivermanager:3.7.1"
+    testCompile "org.testng:testng:6.11"
+    testCompile "me.tatarka.assertk:assertk:1.0-SNAPSHOT"
+    testCompile "org.eclipse.jetty:jetty-server:9.4.6.v20170531"
+    testCompile "org.eclipse.jetty:jetty-servlet:9.4.6.v20170531"
+    testCompile "org.seleniumhq.selenium:selenium-server:3.0.1"
 }
 
 compileKotlin {
