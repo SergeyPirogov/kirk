@@ -1,7 +1,7 @@
 package com.automation.remarks.kirk.test
 
 import com.automation.remarks.kirk.test.helpers.JettyServer
-import io.github.bonigarcia.wdm.FirefoxDriverManager
+import io.github.bonigarcia.wdm.WebDriverManager.firefoxdriver
 import me.tatarka.assertk.Assert
 import me.tatarka.assertk.AssertBlock
 import me.tatarka.assertk.assertions.hasClass
@@ -21,7 +21,7 @@ abstract class BaseTest {
 
     @BeforeSuite
     fun runServer() {
-        FirefoxDriverManager.getInstance().setup()
+        firefoxdriver().setup()
         jetty.runServer()
     }
 

@@ -3,9 +3,9 @@ package com.automation.remarks.kirk.core
 import com.automation.remarks.kirk.Configuration
 import com.automation.remarks.kirk.ext.autoClose
 import com.automation.remarks.kirk.ext.isAlive
-import io.github.bonigarcia.wdm.ChromeDriverManager
-import io.github.bonigarcia.wdm.FirefoxDriverManager
-import io.github.bonigarcia.wdm.InternetExplorerDriverManager
+import io.github.bonigarcia.wdm.WebDriverManager.chromedriver
+import io.github.bonigarcia.wdm.WebDriverManager.firefoxdriver
+import io.github.bonigarcia.wdm.WebDriverManager.iedriver
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
@@ -33,7 +33,6 @@ class WebDriverFactory {
         if (configuration.remoteUrl().isNotBlank()) {
             return createRemoteDriver(browser)
         }
-
         when (browser) {
             CHROME -> return createChromeDriver()
             FIREFOX -> return createFireFoxDriver()
@@ -44,18 +43,18 @@ class WebDriverFactory {
     }
 
     private fun createChromeDriver(): WebDriver {
-        ChromeDriverManager.getInstance().setup()
+        chromedriver().setup()
         val capabilities = getCapabilities()
         return ChromeDriver(capabilities.merge(getOptions()))
     }
 
     private fun createFireFoxDriver(): WebDriver {
-        FirefoxDriverManager.getInstance().setup()
+        firefoxdriver().setup()
         return FirefoxDriver(getCapabilities())
     }
 
     private fun createInternetExplorerDriver(): WebDriver {
-        InternetExplorerDriverManager.getInstance().setup()
+        iedriver().setup()
         return InternetExplorerDriver(getCapabilities())
     }
 
