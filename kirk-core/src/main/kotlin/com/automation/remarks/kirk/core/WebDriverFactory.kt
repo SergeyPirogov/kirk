@@ -10,7 +10,9 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.firefox.FirefoxDriver
+import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.ie.InternetExplorerDriver
+import org.openqa.selenium.ie.InternetExplorerOptions
 import org.openqa.selenium.remote.DesiredCapabilities
 import org.openqa.selenium.remote.RemoteWebDriver
 import java.net.URI
@@ -44,18 +46,21 @@ class WebDriverFactory {
 
     private fun createChromeDriver(): WebDriver {
         chromedriver().setup()
-        val capabilities = getCapabilities()
-        return ChromeDriver(capabilities.merge(getOptions()))
+        // val capabilities = getCapabilities()
+        // return ChromeDriver(capabilities.merge(getOptions()))
+        return ChromeDriver(ChromeOptions())
     }
 
     private fun createFireFoxDriver(): WebDriver {
         firefoxdriver().setup()
-        return FirefoxDriver(getCapabilities())
+        // return FirefoxDriver(getCapabilities())
+        return FirefoxDriver(FirefoxOptions())
     }
 
     private fun createInternetExplorerDriver(): WebDriver {
         iedriver().setup()
-        return InternetExplorerDriver(getCapabilities())
+        // return InternetExplorerDriver(getCapabilities())
+        return InternetExplorerDriver(InternetExplorerOptions())
     }
 
     private fun createRemoteDriver(browser: String): WebDriver {
